@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Cell } from 'src/app/models/cell';
 import { Maze } from 'src/app/models/maze';
 
@@ -8,7 +17,10 @@ import { Maze } from 'src/app/models/maze';
   templateUrl: './maze-grid.component.html',
   styleUrls: ['./maze-grid.component.scss'],
 })
-export class MazeGridComponent implements OnInit, AfterViewInit {
+export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+  private destroy$ = new Subject();
+
+  @Input() fileName: string = '';
   private mazeFile: any;
 
   private width: number | undefined;
@@ -24,7 +36,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit {
   private cellWallBackground: string = '#000000';
   private solvedPathColor: string = '#00FF00';
   private solvedPathThickness: number = 3;
-  private currentCell: Cell | undefined;
   private solvedPath: Cell[] = [];
 
   constructor(private httpClient: HttpClient) {}
@@ -34,31 +45,38 @@ export class MazeGridComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.canvas = <HTMLCanvasElement>document.getElementById('maze');
     this.ctx = this.canvas.getContext('2d');
-    this.renderMaze();
   }
 
-  renderMaze() {
-    this.httpClient.get('assets/mazes/maze.json').subscribe((data) => {
-      this.mazeFile = data;
-      this.width = this.mazeFile.width;
-      this.height = this.mazeFile.height;
-      this.maze = new Maze(
-        this.mazeFile.width,
-        this.mazeFile.height,
-        this.mazeFile.board
-      );
+  ngOnChanges(): void {
+    if (this.fileName !== '') {
+      this.renderMaze(this.fileName);
+    }
+  }
 
-      this.canvas!.width = this.height! * this.cellSize;
-      this.canvas!.height = this.width! * this.cellSize;
+  renderMaze(fileName: string) {
+    this.httpClient
+      .get('assets/mazes/' + fileName + '.json')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        this.mazeFile = data;
+        this.width = this.mazeFile.width;
+        this.height = this.mazeFile.height;
+        this.maze = new Maze(
+          this.mazeFile.width,
+          this.mazeFile.height,
+          this.mazeFile.board
+        );
 
-      this.ctx.lineWidth = this.cellEdgeThickness;
+        this.canvas!.width = this.height! * this.cellSize;
+        this.canvas!.height = this.width! * this.cellSize;
 
-      this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
-      this.maze.solveMaze('DFS');
-      this.solvedPath = this.maze.solutionPath;
-      console.log(this.solvedPath);
-      this.drawSolution(this.solvedPath);
-    });
+        this.ctx.lineWidth = this.cellEdgeThickness;
+
+        this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
+        this.maze.solveMaze('DFS');
+        this.solvedPath = this.maze.solutionPath;
+        this.drawSolution(this.solvedPath);
+      });
   }
 
   private draw(cell: Cell) {
@@ -97,10 +115,10 @@ export class MazeGridComponent implements OnInit, AfterViewInit {
   }
 
   drawSolution(path: Cell[]) {
-    this.drawPath(path, true);
+    this.drawPath(path);
   }
 
-  private drawPath(path: Cell[], drawSolution = false) {
+  private drawPath(path: Cell[]) {
     this.ctx.lineWidth = this.solvedPathThickness;
     this.ctx.strokeStyle = this.solvedPathColor;
     this.ctx.beginPath();
@@ -111,12 +129,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit {
         (x.row + 0.5) * this.cellSize
       )
     );
-    if (drawSolution) {
-      this.ctx.lineTo(
-        this.width! * this.cellSize,
-        (this.height! - 0.5) * this.cellSize
-      );
-    }
     this.ctx.stroke();
   }
 
@@ -130,5 +142,10 @@ export class MazeGridComponent implements OnInit, AfterViewInit {
     } else {
       this.ctx.fillStyle = this.cellBackground;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

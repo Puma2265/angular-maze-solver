@@ -1,4 +1,4 @@
-import { Component, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { map, shareReplay } from 'rxjs/operators';
 export class NavigationComponent {
   
   pixelSize: number = 28;
-
+  fileName: string = '';
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
       map(result => result.matches),
@@ -22,5 +22,9 @@ export class NavigationComponent {
 
   updatePixelSize(event: any) {
     this.pixelSize = event.value;
+  }
+
+  loadMaze(fileName: string): void {
+    this.fileName = fileName;
   }
 }

@@ -19,6 +19,7 @@ import { DrawingGridModule } from 'ngx-drawing-grid';
 import { MazeGridComponent } from './components/maze-grid/maze-grid.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { HttpClientModule } from '@angular/common/http';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { HttpClientModule } from '@angular/common/http';
     DrawingGridModule,
     MatSliderModule,
     HttpClientModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -1,16 +1,33 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer class="sidenav" fixedInViewport
-      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-      [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+  >
     <mat-toolbar>Menu</mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
-    </mat-nav-list>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Select maze </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-action-list>
+        <button mat-list-item (click)="loadMaze('maze1')">Maze 1 - 8x8</button>
+        <button mat-list-item (click)="loadMaze('maze2')">Maze 2 - 12x12 (empty) </button>
+        <button mat-list-item (click)="loadMaze('maze3')">Maze 3 - 15x15 </button>
+        <button mat-list-item (click)="loadMaze('maze4')">Maze 4 - 29x29 </button>
+      </mat-action-list>
+    </mat-expansion-panel>
     <p>
-      <mat-slider min="28" max="96" step="1" [value]="pixelSize" thumbLabel (change)="updatePixelSize($event)"></mat-slider>
+      <mat-slider
+        min="28"
+        max="96"
+        step="1"
+        [value]="pixelSize"
+        thumbLabel
+        (change)="updatePixelSize($event)"
+      ></mat-slider>
     </p>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -20,14 +37,14 @@
         aria-label="Toggle sidenav"
         mat-icon-button
         (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async">
+        *ngIf="isHandset$ | async"
+      >
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
       <span>Maze Solver</span>
     </mat-toolbar>
-    
-    <!-- Add Content Here -->
-    <app-maze-grid></app-maze-grid>
 
+    <!-- Add Content Here -->
+    <app-maze-grid [fileName]="fileName"></app-maze-grid>
   </mat-sidenav-content>
 </mat-sidenav-container>
