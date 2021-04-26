@@ -8,27 +8,98 @@
     [opened]="(isHandset$ | async) === false"
   >
     <mat-toolbar>Menu</mat-toolbar>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title> Select maze </mat-panel-title>
-      </mat-expansion-panel-header>
-      <mat-action-list>
-        <button mat-list-item (click)="loadMaze('maze1')">Maze 1 - 8x8</button>
-        <button mat-list-item (click)="loadMaze('maze2')">Maze 2 - 12x12 (empty) </button>
-        <button mat-list-item (click)="loadMaze('maze3')">Maze 3 - 15x15 </button>
-        <button mat-list-item (click)="loadMaze('maze4')">Maze 4 - 29x29 </button>
-      </mat-action-list>
-    </mat-expansion-panel>
-    <p>
-      <mat-slider
-        min="28"
-        max="96"
-        step="1"
-        [value]="pixelSize"
-        thumbLabel
-        (change)="updatePixelSize($event)"
-      ></mat-slider>
-    </p>
+    <mat-accordion multi>
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title> Select maze</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-action-list>
+          <button mat-list-item (click)="loadMaze('maze1')">Maze 1 - 8x8</button>
+          <button mat-list-item (click)="loadMaze('maze2')">Maze 2 - 12x12 (empty)</button>
+          <button mat-list-item (click)="loadMaze('maze3')">Maze 3 - 15x15</button>
+          <button mat-list-item (click)="loadMaze('maze4')">Maze 4 - 29x29</button>
+        </mat-action-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title> Select algorithm</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-list>
+          <mat-radio-group #algorithms [(ngModel)]="selectedAlgorithm" class="radio-group">
+            <mat-list-item *ngFor="let algo of typesOfAlgorithms">
+              <mat-radio-button [value]="algo" class="radio-button">
+                {{algo}}
+              </mat-radio-button>
+            </mat-list-item>
+          </mat-radio-group>
+
+          <mat-list-item>
+            <button mat-raised-button type="button" color="primary" (click)="solveMaze(selectedAlgorithm)"
+                    [disabled]="selectedAlgorithm === ''">Solve
+            </button>
+          </mat-list-item>
+
+        </mat-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header> Settings</mat-expansion-panel-header>
+        <mat-list>
+          <div mat-subheader>Maze cell size: {{settings.cellSize}}</div>
+          <mat-list-item>
+            <mat-slider
+              class="w-100"
+              min="28"
+              max="64"
+              step="1"
+              [value]="settings.cellSize"
+              thumbLabel
+              (change)="updatePixelSize($event)"
+            ></mat-slider>
+          </mat-list-item>
+
+          <mat-divider class="pb-3"></mat-divider>
+
+          <mat-list-item>
+            <div class="w-100">
+              <div mat-subheader class="p-0 float-left">Cell background</div>
+              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellBackground"></div>
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <div class="w-100">
+              <div mat-subheader class="p-0 float-left">Entrance cell background</div>
+              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellEntranceBackground">
+              </div>
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <div class="w-100">
+              <div mat-subheader class="p-0 float-left">Exit cell background</div>
+              <input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellExitBackground">
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <div class="w-100">
+              <div mat-subheader class="p-0 float-left">Wall cell background</div>
+              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellWallBackground">
+              </div>
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <div class="w-100">
+              <div mat-subheader class="p-0 float-left">Solved path color</div>
+              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.solvedPathColor"></div>
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <button mat-raised-button type="button" color="primary" (click)="saveSettings()">Set</button>
+          </mat-list-item>
+        </mat-list>
+      </mat-expansion-panel>
+    </mat-accordion>
+
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
@@ -45,6 +116,6 @@
     </mat-toolbar>
 
     <!-- Add Content Here -->
-    <app-maze-grid [fileName]="fileName"></app-maze-grid>
+    <app-maze-grid [fileName]="fileName" [settings]="settings" #maze></app-maze-grid>
   </mat-sidenav-content>
 </mat-sidenav-container>

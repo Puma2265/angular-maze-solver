@@ -1,3 +1,6 @@
-<section style="padding: 5px;">
+<mat-progress-bar [mode]="progressBarMode" value="100"></mat-progress-bar>
+<div [hidden]="!width && !height && !working" class="text-center">
+  <section style="padding: 5px;">
     <canvas id="maze"></canvas>
-</section>
+  </section>
+</div>

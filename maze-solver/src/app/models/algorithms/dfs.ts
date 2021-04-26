@@ -4,8 +4,8 @@ import { Maze } from '../maze';
 export class Dfs {
   private maze: Maze | undefined;
 
-  constructor(_maze: Maze) {
-    this.maze = _maze;
+  constructor(maze: Maze) {
+    this.maze = maze;
   }
 
   public solve(): Cell[] {
@@ -17,7 +17,7 @@ export class Dfs {
       path.unshift(this.maze.getEntranceCell);
 
       while (true) {
-        let current = path[0];
+        const current = path[0];
         current.traversed = true;
 
         if (current.equals(this.maze?.getExitCell)) {

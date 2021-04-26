@@ -3,7 +3,7 @@ import { Cell } from './cell';
 
 export class Maze {
   public readonly cells: Cell[][] = [];
-  public solutionPath: Array<Cell> = new Array();
+  public solutionPath: Array<Cell> = [];
   private readonly entranceCell: Cell | undefined;
   private readonly exitCell: Cell | undefined;
 
@@ -12,9 +12,9 @@ export class Maze {
       this.cells[i] = [];
       for (let j = 0; j < height; j++) {
         this.cells[i][j] = new Cell(i, j, board[i][j]);
-        if (board[i][j] == 2) {
+        if (board[i][j] === 2) {
           this.entranceCell = this.cells[i][j];
-        } else if (board[i][j] == 3) {
+        } else if (board[i][j] === 3) {
           this.exitCell = this.cells[i][j];
         }
       }
@@ -24,9 +24,7 @@ export class Maze {
 
   // Check if a cell is inside the bounds of the maze
   public inBounds(row: number, col: number): boolean {
-    if (col >= 0 && col < this.width && row >= 0 && row < this.height)
-      return true;
-    else return false;
+    return col >= 0 && col < this.width && row >= 0 && row < this.height;
   }
 
   private mapNeighbors(cell: Cell): void {
@@ -46,16 +44,16 @@ export class Maze {
 
   public solveMaze(method: string): void {
     this.cells.forEach((x) => x.forEach((c) => (c.traversed = false)));
-    if (method === 'DFS') {
+    if (method === 'Depth-first search') {
       this.solutionPath = new Dfs(this).solve();
     }
   }
 
-  get getEntranceCell() {
+  get getEntranceCell(): any {
     return this.entranceCell;
   }
 
-  get getExitCell() {
+  get getExitCell(): any {
     return this.exitCell;
   }
 }
