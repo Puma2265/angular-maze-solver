@@ -47,6 +47,6 @@ export class NavigationComponent {
   }
 
   saveSettings(): void {
-    this.mazeComponent?.redrawMaze();
+    this.mazeComponent?.redrawMaze(true);
   }
 }

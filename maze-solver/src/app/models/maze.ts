@@ -1,5 +1,6 @@
 import { Dfs } from './algorithms/dfs';
 import { Cell } from './cell';
+import {Bfs} from "./algorithms/bfs";
 
 export class Maze {
   public readonly cells: Cell[][] = [];
@@ -46,6 +47,9 @@ export class Maze {
     this.cells.forEach((x) => x.forEach((c) => (c.traversed = false)));
     if (method === 'Depth-first search') {
       this.solutionPath = new Dfs(this).solve();
+    }
+    if (method === 'Breadth-first search') {
+      this.solutionPath = new Bfs(this).solve();
     }
   }
 

@@ -37,7 +37,6 @@ export class Dfs {
     } else {
       return path;
     }
-
     return path.reverse();
   }
 }

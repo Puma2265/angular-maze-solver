@@ -1,6 +1,7 @@
 export class Cell {
   neighbors: Cell[] = [];
   isWall = false;
+  parent: any;
 
   // a flag used to indicate if the cell has been traversed or not when finding a maze path
   traversed = false;

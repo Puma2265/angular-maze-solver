@@ -91,7 +91,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       });
   }
 
-  public redrawMaze(): void {
+  public redrawMaze(drawSolution?: boolean): void {
     this.changeProgressBarStatus();
     if (this.maze) {
       this.ctx.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
@@ -101,7 +101,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
       this.ctx.lineWidth = this.cellEdgeThickness;
       this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
-      if (this.lastUsedSolvingMethod !== '') {
+      if (drawSolution && this.solvedPath.length > 0) {
         this.drawSolution(this.solvedPath);
       }
     }
@@ -111,12 +111,11 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   public solveMaze(method: string): void {
     this.changeProgressBarStatus();
     if (this.maze) {
-      if (this.lastUsedSolvingMethod !== method) { // prevent drawing same path again
+        this.redrawMaze(false);
         this.maze.solveMaze(method);
         this.solvedPath = this.maze.solutionPath;
         this.drawSolution(this.solvedPath);
         this.lastUsedSolvingMethod = method;
-      }
     } else {
       this.openSnackBar('Select maze to solve');
     }
