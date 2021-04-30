@@ -19,5 +19,4 @@ export class Cell {
   equals(another: Cell): boolean {
     return this.row === another.row && this.col === another.col;
   }
-
 }

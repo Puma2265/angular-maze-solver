@@ -1,12 +1,12 @@
-import { Dfs } from './algorithms/dfs';
-import { Cell } from './cell';
-import {Bfs} from "./algorithms/bfs";
+import {Dfs} from './algorithms/dfs';
+import {Cell} from './cell';
+import {Bfs} from './algorithms/bfs';
 
 export class Maze {
   public readonly cells: Cell[][] = [];
   public solutionPath: Array<Cell> = [];
-  private readonly entranceCell: Cell | undefined;
-  private readonly exitCell: Cell | undefined;
+  public readonly entranceCell: Cell | undefined;
+  public readonly exitCell: Cell | undefined;
 
   constructor(public width: number, public height: number, board: any) {
     for (let i = 0; i < width; i++) {
@@ -51,13 +51,5 @@ export class Maze {
     if (method === 'Breadth-first search') {
       this.solutionPath = new Bfs(this).solve();
     }
-  }
-
-  get getEntranceCell(): any {
-    return this.entranceCell;
-  }
-
-  get getExitCell(): any {
-    return this.exitCell;
   }
 }

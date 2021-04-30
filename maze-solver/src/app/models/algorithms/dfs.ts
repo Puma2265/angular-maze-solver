@@ -12,15 +12,15 @@ export class Dfs {
     const path: Cell[] = [];
 
     // check if maze has defined entrance and exit
-    if (this.maze?.getEntranceCell && this.maze?.getExitCell) {
+    if (this.maze?.entranceCell && this.maze?.exitCell) {
       // add starting cell
-      path.unshift(this.maze.getEntranceCell);
+      path.unshift(this.maze.entranceCell);
 
       while (true) {
         const current = path[0];
         current.traversed = true;
 
-        if (current.equals(this.maze?.getExitCell)) {
+        if (this.isEqual(current, this.maze.exitCell)) {
           break;
         }
 
@@ -38,5 +38,9 @@ export class Dfs {
       return path;
     }
     return path.reverse();
+  }
+
+  private isEqual(cell1: Cell, cell2: Cell): boolean {
+    return cell1.row === cell2.row && cell1.col === cell2.col;
   }
 }

@@ -20,6 +20,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private destroy$ = new Subject();
+  private algoWorker: Worker | undefined;
 
   @Input() fileName = '';
   @Input() settings: any;
@@ -49,6 +50,11 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   ngOnInit(): void {
     this.setSettings();
+    if (typeof Worker !== 'undefined') {
+      this.algoWorker = new Worker('../../workers/algo-worker.worker', {type: `module`});
+    } else {
+      throw new Error('Web Worker is not enabled');
+    }
   }
 
   ngAfterViewInit(): void {
@@ -111,11 +117,19 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   public solveMaze(method: string): void {
     this.changeProgressBarStatus();
     if (this.maze) {
-        this.redrawMaze(false);
-        this.maze.solveMaze(method);
-        this.solvedPath = this.maze.solutionPath;
-        this.drawSolution(this.solvedPath);
-        this.lastUsedSolvingMethod = method;
+      this.redrawMaze(false);
+      // this.maze.solveMaze(method);
+      if (this.algoWorker) {
+        this.algoWorker.postMessage({method, maze: this.maze});
+        this.algoWorker.onmessage = ({data}) => {
+          if (this.maze) {
+            this.maze.solutionPath = data;
+            this.solvedPath = this.maze.solutionPath;
+            this.drawSolution(this.solvedPath);
+            this.lastUsedSolvingMethod = method;
+          }
+        };
+      }
     } else {
       this.openSnackBar('Select maze to solve');
     }
@@ -179,9 +193,9 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   private setCellBackground(cell: Cell): void {
     if (cell.isWall) {
       this.ctx.fillStyle = this.cellWallBackground;
-    } else if (this.maze?.getEntranceCell === cell) {
+    } else if (this.maze?.entranceCell === cell) {
       this.ctx.fillStyle = this.cellEntranceBackground;
-    } else if (this.maze?.getExitCell === cell) {
+    } else if (this.maze?.exitCell === cell) {
       this.ctx.fillStyle = this.cellExitBackground;
     } else {
       this.ctx.fillStyle = this.cellBackground;
@@ -216,5 +230,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.algoWorker?.terminate();
   }
 }

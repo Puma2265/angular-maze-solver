@@ -23,9 +23,9 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatInputModule} from '@angular/material/input';
-import {FormsModule} from "@angular/forms";
-import {MatRadioModule} from "@angular/material/radio";
-import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from "@angular/material/snack-bar";
+import {FormsModule} from '@angular/forms';
+import {MatRadioModule} from '@angular/material/radio';
+import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -58,7 +58,8 @@ import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from "@angular/materia
     MatRadioModule,
     MatSnackBarModule
   ],
-  providers: [{provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3500}}],
+  providers: [
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3500}}],
   bootstrap: [AppComponent],
 })
 export class AppModule {
