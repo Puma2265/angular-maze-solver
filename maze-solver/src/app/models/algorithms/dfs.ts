@@ -1,11 +1,12 @@
-import { Cell } from '../cell';
-import { Maze } from '../maze';
+import {Cell} from '../cell';
+import {Maze} from '../maze';
 
 export class Dfs {
-  private maze: Maze | undefined;
+  private readonly maze: Maze | undefined;
 
   constructor(maze: Maze) {
     this.maze = maze;
+    console.log(this.maze);
   }
 
   public solve(): Cell[] {
@@ -18,20 +19,24 @@ export class Dfs {
 
       while (true) {
         const current = path[0];
-        current.traversed = true;
+        if (current) {
+          current.traversed = true;
 
-        if (this.isEqual(current, this.maze.exitCell)) {
-          break;
-        }
+          if (this.isEqual(current, this.maze.exitCell)) {
+            break;
+          }
 
-        const traversableNeighbors = current.neighbors
-          .filter((c) => !c.isWall)
-          .filter((c) => !c.traversed);
+          const traversableNeighbors = current.neighbors
+            .filter((c) => !c.isWall)
+            .filter((c) => !c.traversed);
 
-        if (traversableNeighbors.length) {
-          path.unshift(traversableNeighbors[0]);
+          if (traversableNeighbors.length) {
+            path.unshift(traversableNeighbors[0]);
+          } else {
+            path.splice(0, 1);
+          }
         } else {
-          path.splice(0, 1);
+          break;
         }
       }
     } else {

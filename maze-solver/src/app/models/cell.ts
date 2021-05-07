@@ -9,14 +9,19 @@ export class Cell {
   constructor(
     public readonly row: number = 0,
     public readonly col: number = 0,
-    public readonly value: number = -1
+    public value: number = 1
   ) {
     if (value === 1) {
       this.isWall = true;
     }
   }
 
-  equals(another: Cell): boolean {
+  public equals(another: Cell): boolean {
     return this.row === another.row && this.col === another.col;
+  }
+
+  public setPassage(): void {
+    this.value = 0;
+    this.isWall = false;
   }
 }

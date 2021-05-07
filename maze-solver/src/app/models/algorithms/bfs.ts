@@ -6,20 +6,22 @@ export class Bfs {
 
   constructor(maze: Maze) {
     this.maze = maze;
+    console.log(this.maze);
   }
 
   public solve(): Cell[] {
     const queue: Cell[] = [];
     const path: Cell[] = [];
 
-    // check if maze has defined entrance and exit
-    if (this.maze?.entranceCell && this.maze?.exitCell) {
-      // add starting cell
-      this.maze.entranceCell.traversed = true;
-      let current: Cell = this.maze.entranceCell;
+    if (this.maze && this.maze.entranceCell && this.maze.exitCell) {
+      // add starting node
+      let current = this.maze.entranceCell;
       current.parent = null;
+      current.traversed = true;
+      queue.push(current);
 
-      while (!this.isEqual(current, this.maze.exitCell)) {
+      while (queue.length > 0 && !this.isEqual(current, this.maze.exitCell)) {
+        current = queue.shift() as Cell;
         const traversableNeighbors = current.neighbors
           .filter((c) => !c.isWall)
           .filter((c) => !c.traversed);
@@ -29,18 +31,20 @@ export class Bfs {
           c.parent = current;
           queue.push(c);
         });
-        current = queue.shift() as Cell; // go to next cell
       }
 
       // create path
-      path.unshift(current);
-
-      while (!this.isEqual(current, this.maze.entranceCell)) {
-        current = current.parent;
+      if (!this.isEqual(current, this.maze.exitCell)) {
+        return path;
+      } else {
         path.unshift(current);
+        while (!this.isEqual(current, this.maze.entranceCell)) {
+          current = current.parent;
+          path.unshift(current);
+        }
       }
     } else {
-      return path;
+      throw new Error('Encountered a problem while solving maze');
     }
     return path;
   }

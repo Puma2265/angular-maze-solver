@@ -15,11 +15,18 @@ export class NavigationComponent {
   public fileName = '';
   settings = {
     cellSize: 28,
+    solvedPathThickness: 3,
     cellEntranceBackground: '#0000FF',
     cellBackground: '#ffffff',
     cellExitBackground: '#FF0000',
     cellWallBackground: '#000000',
     solvedPathColor: '#00ba00'
+  };
+
+  generateSettings = {
+    width: 0,
+    height: 0,
+    randomEntranceAndExit: false
   };
 
   public typesOfAlgorithms: string[] = ['Depth-first search', 'Breadth-first search'];
@@ -34,8 +41,12 @@ export class NavigationComponent {
   constructor(private breakpointObserver: BreakpointObserver) {
   }
 
-  updatePixelSize(event: any): void {
+  updateCellSize(event: any): void {
     this.settings.cellSize = event.value;
+  }
+
+  updateSolvedPathThickness(event: any): void {
+    this.settings.solvedPathThickness = event.value;
   }
 
   loadMaze(fileName: string): void {
@@ -48,5 +59,10 @@ export class NavigationComponent {
 
   saveSettings(): void {
     this.mazeComponent?.redrawMaze(true);
+  }
+
+  generateMaze(): void {
+    this.mazeComponent?.generateMaze(this.generateSettings.width, this.generateSettings.height,
+      this.generateSettings.randomEntranceAndExit);
   }
 }

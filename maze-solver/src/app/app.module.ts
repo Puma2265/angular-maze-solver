@@ -26,6 +26,8 @@ import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
 import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -34,30 +36,32 @@ import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from '@angular/materia
     DashboardComponent,
     MazeGridComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    LayoutModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatListModule,
-    MatGridListModule,
-    MatCardModule,
-    MatMenuModule,
-    DrawingGridModule,
-    MatSliderModule,
-    HttpClientModule,
-    MatExpansionModule,
-    NgbModule,
-    MatProgressBarModule,
-    MatInputModule,
-    FormsModule,
-    MatRadioModule,
-    MatSnackBarModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        LayoutModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatIconModule,
+        MatListModule,
+        MatGridListModule,
+        MatCardModule,
+        MatMenuModule,
+        DrawingGridModule,
+        MatSliderModule,
+        HttpClientModule,
+        MatExpansionModule,
+        NgbModule,
+        MatProgressBarModule,
+        MatInputModule,
+        FormsModule,
+        MatRadioModule,
+        MatSnackBarModule,
+        MatTooltipModule,
+        MatCheckboxModule
+    ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3500}}],
   bootstrap: [AppComponent],

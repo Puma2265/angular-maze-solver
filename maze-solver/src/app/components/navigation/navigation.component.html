@@ -11,6 +11,38 @@
     <mat-accordion multi>
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="align-self-center">Generate maze</span>
+            <button mat-icon-button color="primary" class="ml-auto">
+              <mat-icon matTooltip="It is best to enter different & odd values for the width and height">info</mat-icon>
+            </button>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-list>
+          <mat-list-item>
+            <mat-form-field class="w-100">
+              <input matInput type="number" [(ngModel)]="generateSettings.width" placeholder="width">
+            </mat-form-field>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-form-field class="w-100">
+              <input matInput type="number" [(ngModel)]="generateSettings.height" placeholder="height">
+            </mat-form-field>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-checkbox [(ngModel)]="generateSettings.randomEntranceAndExit">Random entrance & exit</mat-checkbox>
+          </mat-list-item>
+          <mat-list-item>
+            <button mat-raised-button type="button" color="primary"
+                    [disabled]="generateSettings.width === 0 || generateSettings.height === 0" (click)="generateMaze()">
+              Generate
+            </button>
+          </mat-list-item>
+        </mat-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
           <mat-panel-title> Select maze</mat-panel-title>
         </mat-expansion-panel-header>
         <mat-action-list>
@@ -23,7 +55,7 @@
 
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
-          <mat-panel-title> Select algorithm</mat-panel-title>
+          <mat-panel-title> Select solving algorithm</mat-panel-title>
         </mat-expansion-panel-header>
         <mat-list>
           <mat-radio-group #algorithms [(ngModel)]="selectedAlgorithm" class="radio-group">
@@ -46,52 +78,65 @@
       <mat-expansion-panel>
         <mat-expansion-panel-header> Settings</mat-expansion-panel-header>
         <mat-list>
-          <div mat-subheader>Maze cell size: {{settings.cellSize}}</div>
+          <mat-list-item>
+            Maze cell size: {{settings.cellSize}}
+          </mat-list-item>
           <mat-list-item>
             <mat-slider
               class="w-100"
-              min="28"
+              min="8"
               max="64"
               step="1"
               [value]="settings.cellSize"
               thumbLabel
-              (change)="updatePixelSize($event)"
+              (change)="updateCellSize($event)"
+            ></mat-slider>
+          </mat-list-item>
+          <mat-list-item>
+            Solved path thickness: {{settings.solvedPathThickness}}
+          </mat-list-item>
+          <mat-list-item>
+            <mat-slider
+              class="w-100"
+              min="1"
+              max="64"
+              step="1"
+              [value]="settings.solvedPathThickness"
+              thumbLabel
+              (change)="updateSolvedPathThickness($event)"
             ></mat-slider>
           </mat-list-item>
 
-          <mat-divider class="pb-3"></mat-divider>
+          <mat-divider class="pb-4"></mat-divider>
 
           <mat-list-item>
-            <div class="w-100">
-              <div mat-subheader class="p-0 float-left">Cell background</div>
-              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellBackground"></div>
-            </div>
+            <mat-form-field class="no-line w-100">
+              <mat-label>Cell background: <b>{{settings.cellBackground | uppercase}}</b></mat-label>
+              <input matInput type="color" [(ngModel)]="settings.cellBackground">
+            </mat-form-field>
           </mat-list-item>
           <mat-list-item>
-            <div class="w-100">
-              <div mat-subheader class="p-0 float-left">Entrance cell background</div>
-              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellEntranceBackground">
-              </div>
-            </div>
+            <mat-form-field class="no-line w-100">
+              <mat-label>Entrance cell background: <b>{{settings.cellEntranceBackground | uppercase}}</b></mat-label>
+              <input matInput type="color" [(ngModel)]="settings.cellEntranceBackground">
+            </mat-form-field>
           </mat-list-item>
           <mat-list-item>
-            <div class="w-100">
-              <div mat-subheader class="p-0 float-left">Exit cell background</div>
-              <input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellExitBackground">
-            </div>
+            <mat-form-field class="no-line w-100">
+              <mat-label>Exit cell background: <b>{{settings.cellExitBackground | uppercase}}</b></mat-label>
+              <input matInput type="color" [(ngModel)]="settings.cellExitBackground">
+            </mat-form-field>
           </mat-list-item>
           <mat-list-item>
-            <div class="w-100">
-              <div mat-subheader class="p-0 float-left">Wall cell background</div>
-              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.cellWallBackground">
-              </div>
-            </div>
+            <mat-form-field class="no-line w-100">
+              <mat-label>Wall cell background: <b>{{settings.cellWallBackground | uppercase}}</b></mat-label>
+              <input matInput type="color" [(ngModel)]="settings.cellWallBackground">
+            </mat-form-field>
           </mat-list-item>
           <mat-list-item>
-            <div class="w-100">
-              <div mat-subheader class="p-0 float-left">Solved path color</div>
-              <div><input matInput type="color" class="float-right mt-1" [(ngModel)]="settings.solvedPathColor"></div>
-            </div>
+            <mat-form-field class="no-line w-100">
+              <mat-label>Solved path color: <b>{{settings.solvedPathColor | uppercase}}</b></mat-label>
+              <input matInput type="color" [(ngModel)]="settings.solvedPathColor"></mat-form-field>
           </mat-list-item>
           <mat-list-item>
             <button mat-raised-button type="button" color="primary" (click)="saveSettings()">Set</button>

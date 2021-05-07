@@ -5,22 +5,33 @@ import {Bfs} from './algorithms/bfs';
 export class Maze {
   public readonly cells: Cell[][] = [];
   public solutionPath: Array<Cell> = [];
-  public readonly entranceCell: Cell | undefined;
-  public readonly exitCell: Cell | undefined;
+  public entranceCell: Cell | undefined;
+  public exitCell: Cell | undefined;
 
-  constructor(public width: number, public height: number, board: any) {
-    for (let i = 0; i < width; i++) {
-      this.cells[i] = [];
-      for (let j = 0; j < height; j++) {
-        this.cells[i][j] = new Cell(i, j, board[i][j]);
-        if (board[i][j] === 2) {
-          this.entranceCell = this.cells[i][j];
-        } else if (board[i][j] === 3) {
-          this.exitCell = this.cells[i][j];
+  constructor(public width: number, public height: number, fillWithWalls: boolean, board?: any) {
+    if (!fillWithWalls){ // load maze from file
+      for (let i = 0; i < width; i++) {
+        this.cells[i] = [];
+        for (let j = 0; j < height; j++) {
+          this.cells[i][j] = new Cell(i, j, board[i][j]);
+          if (board[i][j] === 2) {
+            this.entranceCell = this.cells[i][j];
+          } else if (board[i][j] === 3) {
+            this.exitCell = this.cells[i][j];
+          }
         }
       }
+      this.cells.forEach((row) => row.forEach((c) => this.mapNeighbors(c)));
     }
-    this.cells.forEach((row) => row.forEach((c) => this.mapNeighbors(c)));
+    else { // setup maze for generating algorithm
+      for (let i = 0; i < width; i++) {
+        this.cells[i] = [];
+        for (let j = 0; j < height; j++) {
+          this.cells[i][j] = new Cell(i, j);
+        }
+      }
+      this.cells.forEach((row) => row.forEach((c) => this.mapNeighbors(c)));
+    }
   }
 
   // Check if a cell is inside the bounds of the maze
@@ -43,6 +54,7 @@ export class Maze {
     }
   }
 
+  // solving in main thread instead in web worker
   public solveMaze(method: string): void {
     this.cells.forEach((x) => x.forEach((c) => (c.traversed = false)));
     if (method === 'Depth-first search') {

@@ -25,3 +25,7 @@
 .radio-button {
   margin: 5px;
 }
+
+::ng-deep .no-line .mat-form-field-underline {
+  display: none;
+}

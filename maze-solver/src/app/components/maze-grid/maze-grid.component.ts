@@ -11,7 +11,8 @@ import {Subject} from 'rxjs';
 import {finalize, takeUntil} from 'rxjs/operators';
 import {Cell} from 'src/app/models/cell';
 import {Maze} from 'src/app/models/maze';
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {PrimsGenerator} from '../../models/algorithms/primsGenerator';
 
 @Component({
   selector: 'app-maze-grid',
@@ -20,7 +21,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private destroy$ = new Subject();
-  private algoWorker: Worker | undefined;
+  // private algoWorker: Worker | undefined;
 
   @Input() fileName = '';
   @Input() settings: any;
@@ -38,9 +39,10 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   private cellExitBackground: string | undefined;
   private cellWallBackground: string | undefined;
   private solvedPathColor: string | undefined;
-  private solvedPathThickness = 3;
+  private solvedPathThickness: number | undefined;
   private solvedPath: Cell[] = [];
   private lastUsedSolvingMethod = '';
+  private randomEntranceAndExit: boolean | undefined;
 
   public working = false;
   public progressBarMode: any = 'determinate';
@@ -50,11 +52,11 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   ngOnInit(): void {
     this.setSettings();
-    if (typeof Worker !== 'undefined') {
-      this.algoWorker = new Worker('../../workers/algo-worker.worker', {type: `module`});
-    } else {
-      throw new Error('Web Worker is not enabled');
-    }
+    // if (typeof Worker !== 'undefined') {
+    //   this.algoWorker = new Worker('../../workers/algo-worker.worker', {type: `module`});
+    // } else {
+    //   throw new Error('Web Worker is not enabled');
+    // }
   }
 
   ngAfterViewInit(): void {
@@ -70,7 +72,8 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     }
   }
 
-  drawMaze(fileName: string): void {
+  public drawMaze(fileName: string): void {
+    console.log(this.solvedPathThickness);
     this.changeProgressBarStatus();
 
     this.httpClient
@@ -86,6 +89,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         this.maze = new Maze(
           this.mazeFile.width,
           this.mazeFile.height,
+          false,
           this.mazeFile.board
         );
 
@@ -95,6 +99,21 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
         this.ctx.lineWidth = this.cellEdgeThickness;
         this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
       });
+  }
+
+  public generateMaze(width: number, height: number, randomEntranceAndExit: boolean): void {
+    this.changeProgressBarStatus();
+    this.width = width;
+    this.height = height;
+    this.ctx.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+    this.maze = new PrimsGenerator(width, height, randomEntranceAndExit).generate();
+
+    this.canvas!.width = this.height! * this.cellSize!;
+    this.canvas!.height = this.width! * this.cellSize!;
+
+    this.ctx.lineWidth = this.cellEdgeThickness;
+    this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
+    this.changeProgressBarStatus();
   }
 
   public redrawMaze(drawSolution?: boolean): void {
@@ -110,26 +129,47 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       if (drawSolution && this.solvedPath.length > 0) {
         this.drawSolution(this.solvedPath);
       }
+    } else {
+      this.openSnackBar('Problem with getting maze object');
     }
     this.changeProgressBarStatus();
+  }
+
+  public openInNewTab(): void {
+    if (this.maze && this.canvas) {
+      const w = window.open('about:blank');
+      if (w) {
+        const img = new Image();
+        img.src = this.canvas.toDataURL('image/png');
+        setTimeout(() => {
+          w.document.write(img.outerHTML);
+        }, 0);
+      }
+    }
   }
 
   public solveMaze(method: string): void {
     this.changeProgressBarStatus();
     if (this.maze) {
+      this.maze.cells.forEach((x) => x.forEach((c) => (c.traversed = false)));
       this.redrawMaze(false);
-      // this.maze.solveMaze(method);
-      if (this.algoWorker) {
-        this.algoWorker.postMessage({method, maze: this.maze});
-        this.algoWorker.onmessage = ({data}) => {
-          if (this.maze) {
-            this.maze.solutionPath = data;
-            this.solvedPath = this.maze.solutionPath;
-            this.drawSolution(this.solvedPath);
-            this.lastUsedSolvingMethod = method;
-          }
-        };
-      }
+      this.maze.solveMaze(method);
+      this.solvedPath = this.maze.solutionPath;
+      this.drawSolution(this.solvedPath);
+      this.lastUsedSolvingMethod = method;
+
+      // maximum call stack problem in web worker
+      // if (this.algoWorker) {
+      //   this.algoWorker.postMessage({method, maze: this.maze});
+      //   this.algoWorker.onmessage = ({data}) => {
+      //     if (this.maze) {
+      //       this.maze.solutionPath = data;
+      //       this.solvedPath = this.maze.solutionPath;
+      //       this.drawSolution(this.solvedPath);
+      //       this.lastUsedSolvingMethod = method;
+      //     }
+      //   };
+      // }
     } else {
       this.openSnackBar('Select maze to solve');
     }
@@ -209,6 +249,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     this.cellWallBackground = this.settings.cellWallBackground;
     this.solvedPathColor = this.settings.solvedPathColor;
     this.cellSize = this.settings.cellSize;
+    this.solvedPathThickness = this.settings.solvedPathThickness;
   }
 
   private changeProgressBarStatus(): void {
@@ -230,6 +271,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.algoWorker?.terminate();
+    // this.algoWorker?.terminate();
   }
 }
