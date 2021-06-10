@@ -3,6 +3,7 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {Observable} from 'rxjs';
 import {map, shareReplay} from 'rxjs/operators';
 import {MazeGridComponent} from '../maze-grid/maze-grid.component';
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-navigation',
@@ -38,31 +39,49 @@ export class NavigationComponent {
       shareReplay()
     );
 
-  constructor(private breakpointObserver: BreakpointObserver) {
+  constructor(private breakpointObserver: BreakpointObserver, private snackBar: MatSnackBar) {
   }
 
-  updateCellSize(event: any): void {
+  public updateCellSize(event: any): void {
     this.settings.cellSize = event.value;
   }
 
-  updateSolvedPathThickness(event: any): void {
+  public updateSolvedPathThickness(event: any): void {
     this.settings.solvedPathThickness = event.value;
   }
 
-  loadMaze(fileName: string): void {
-    this.fileName = fileName;
+  public loadMaze(fileName: string): void {
+    this.mazeComponent?.loadMazeFromFile(fileName);
+    // this.fileName = fileName;
   }
 
-  solveMaze(method: string): void {
+  public solveMaze(method: string): void {
     this.mazeComponent?.solveMaze(method);
   }
 
-  saveSettings(): void {
+  public saveSettings(): void {
     this.mazeComponent?.redrawMaze(true);
   }
 
-  generateMaze(): void {
+  public generateMaze(): void {
     this.mazeComponent?.generateMaze(this.generateSettings.width, this.generateSettings.height,
       this.generateSettings.randomEntranceAndExit);
+  }
+
+  public onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      if (file.type === 'application/json'){
+        this.fileName = file.name;
+        this.mazeComponent?.loadMazeFromFile(file.name, file);
+      } else {
+        this.openSnackBar('Wrong file type');
+      }
+    }
+  }
+
+  private openSnackBar(message: string): void {
+    this.snackBar.open(message, 'Close');
   }
 }

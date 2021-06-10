@@ -1,4 +1,4 @@
-<mat-sidenav-container class="sidenav-container">
+<mat-sidenav-container class="sidenav-container" autosize>
   <mat-sidenav
     #drawer
     class="sidenav"
@@ -43,13 +43,30 @@
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> Select maze</mat-panel-title>
+          <mat-panel-title> Upload maze file</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-list>
+          <mat-list-item>
+            <input type="file" class="file-input" accept="application/JSON"
+                   (change)="onFileSelected($event)" #fileUpload>
+
+            <p class="text-break">{{fileName || "No file uploaded yet."}}</p>
+          </mat-list-item>
+          <mat-list-item>
+            <button mat-raised-button type="button" color="primary" (click)="fileUpload.click()">Select file</button>
+          </mat-list-item>
+        </mat-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> Select predefined maze</mat-panel-title>
         </mat-expansion-panel-header>
         <mat-action-list>
-          <button mat-list-item (click)="loadMaze('maze1')">Maze 1 - 8x8</button>
-          <button mat-list-item (click)="loadMaze('maze2')">Maze 2 - 12x12 (empty)</button>
-          <button mat-list-item (click)="loadMaze('maze3')">Maze 3 - 15x15</button>
-          <button mat-list-item (click)="loadMaze('maze4')">Maze 4 - 29x29</button>
+          <button mat-list-item (click)="loadMaze('maze1.json')">Maze 1 - 8x8</button>
+          <button mat-list-item (click)="loadMaze('maze2.json')">Maze 2 - 12x12 (empty)</button>
+          <button mat-list-item (click)="loadMaze('maze3.json')">Maze 3 - 15x15</button>
+          <button mat-list-item (click)="loadMaze('maze4.json')">Maze 4 - 29x29</button>
         </mat-action-list>
       </mat-expansion-panel>
 

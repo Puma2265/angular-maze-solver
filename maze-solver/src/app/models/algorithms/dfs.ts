@@ -6,7 +6,6 @@ export class Dfs {
 
   constructor(maze: Maze) {
     this.maze = maze;
-    console.log(this.maze);
   }
 
   public solve(): Cell[] {

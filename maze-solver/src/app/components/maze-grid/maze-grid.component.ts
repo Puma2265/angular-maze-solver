@@ -42,7 +42,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   private solvedPathThickness: number | undefined;
   private solvedPath: Cell[] = [];
   private lastUsedSolvingMethod = '';
-  private randomEntranceAndExit: boolean | undefined;
 
   public working = false;
   public progressBarMode: any = 'determinate';
@@ -65,40 +64,42 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   }
 
   ngOnChanges(): void {
-    if (this.fileName !== '') {
-      this.drawMaze(this.fileName);
-      this.solvedPath = [];
-      this.lastUsedSolvingMethod = '';
-    }
+    // if (this.fileName !== '') {
+    //   this.loadMazeFromFile(this.fileName);
+    //   this.solvedPath = [];
+    //   this.lastUsedSolvingMethod = '';
+    // }
   }
 
-  public drawMaze(fileName: string): void {
-    console.log(this.solvedPathThickness);
+  // draws maze from JSON file
+  public loadMazeFromFile(fileName: string, uploadedFile?: File): void {
     this.changeProgressBarStatus();
+    this.solvedPath = [];
+    this.lastUsedSolvingMethod = '';
 
-    this.httpClient
-      .get('assets/mazes/' + fileName + '.json')
-      .pipe(takeUntil(this.destroy$))
-      .pipe(finalize(() => {
-        this.changeProgressBarStatus();
-      }))
-      .subscribe((data) => {
-        this.mazeFile = data;
-        this.width = this.mazeFile.width;
-        this.height = this.mazeFile.height;
-        this.maze = new Maze(
-          this.mazeFile.width,
-          this.mazeFile.height,
-          false,
-          this.mazeFile.board
-        );
-
-        this.canvas!.width = this.height! * this.cellSize!;
-        this.canvas!.height = this.width! * this.cellSize!;
-
-        this.ctx.lineWidth = this.cellEdgeThickness;
-        this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
-      });
+    if (!uploadedFile) {
+      this.httpClient
+        .get('assets/mazes/' + fileName)
+        .pipe(takeUntil(this.destroy$))
+        .pipe(finalize(() => {
+          this.changeProgressBarStatus();
+        }))
+        .subscribe((data) => {
+          this.drawMazeFromFileData(data);
+        });
+    } else {
+      const fileReader = new FileReader();
+      fileReader.readAsText(uploadedFile, 'UTF-8');
+      fileReader.onload = () => {
+        if (typeof fileReader.result === 'string') {
+          this.drawMazeFromFileData(JSON.parse(fileReader.result));
+        }
+      };
+      fileReader.onerror = (error) => {
+        this.openSnackBar('Problem with loading maze from file');
+      };
+    }
+    this.changeProgressBarStatus();
   }
 
   public generateMaze(width: number, height: number, randomEntranceAndExit: boolean): void {
@@ -107,12 +108,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
     this.height = height;
     this.ctx.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
     this.maze = new PrimsGenerator(width, height, randomEntranceAndExit).generate();
-
-    this.canvas!.width = this.height! * this.cellSize!;
-    this.canvas!.height = this.width! * this.cellSize!;
-
-    this.ctx.lineWidth = this.cellEdgeThickness;
-    this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
+    this.redrawMaze();
     this.changeProgressBarStatus();
   }
 
@@ -266,6 +262,30 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
 
   private openSnackBar(message: string): void {
     this.snackBar.open(message, 'Close');
+  }
+
+  private drawMazeFromFileData(data: any): void {
+    this.mazeFile = data;
+    if (!this.mazeFile.width || !this.mazeFile.height || !this.mazeFile.board) {
+      this.openSnackBar('Wrong JSON data');
+    } else if (!Number(this.mazeFile.width) || !Number(this.mazeFile.height)) {
+      this.openSnackBar('Wrong JSON data');
+    } else {
+      this.width = this.mazeFile.width;
+      this.height = this.mazeFile.height;
+      this.maze = new Maze(
+        this.mazeFile.width,
+        this.mazeFile.height,
+        false,
+        this.mazeFile.board
+      );
+
+      this.canvas!.width = this.height! * this.cellSize!;
+      this.canvas!.height = this.width! * this.cellSize!;
+
+      this.ctx.lineWidth = this.cellEdgeThickness;
+      this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
+    }
   }
 
   ngOnDestroy(): void {
