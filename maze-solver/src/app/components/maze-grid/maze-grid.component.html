@@ -1,6 +1,8 @@
-<mat-progress-bar [mode]="progressBarMode" value="100"></mat-progress-bar>
-<div [hidden]="!width && !height && !working" class="text-center">
-  <div style="padding: 5px;">
-    <canvas id="maze" class="maze-container" (click)="openInNewTab()" matTooltip="Open in new tab"></canvas>
+<div #container>
+  <mat-progress-bar [mode]="progressBarMode" value="100"></mat-progress-bar>
+  <div [hidden]="!width && !height && !working" class="text-center">
+    <div style="padding: 5px; overflow-x: scroll;" [ngStyle]="{'max-width' : container.offsetWidth}">
+      <canvas id="maze" class="maze-container" (click)="openInNewTab()" matTooltip="Open in new tab"></canvas>
+    </div>
   </div>
 </div>
