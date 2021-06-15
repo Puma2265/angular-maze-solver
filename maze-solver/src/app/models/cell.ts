@@ -21,7 +21,12 @@ export class Cell {
   }
 
   public setPassage(): void {
-    this.value = 0;
-    this.isWall = false;
+    if (this.value !== 2){
+      this.value = 0;
+      this.isWall = false;
+    }
+    else {
+      this.isWall = false;
+    }
   }
 }

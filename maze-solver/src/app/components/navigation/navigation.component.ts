@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {Observable} from 'rxjs';
 import {map, shareReplay} from 'rxjs/operators';
 import {MazeGridComponent} from '../maze-grid/maze-grid.component';
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-navigation',
@@ -12,6 +12,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class NavigationComponent {
   @ViewChild('maze') mazeComponent: MazeGridComponent | undefined;
+  @ViewChild('fileUpload') fileUpload: any | undefined;
 
   public fileName = '';
   settings = {
@@ -75,10 +76,17 @@ export class NavigationComponent {
       if (file.type === 'application/json'){
         this.fileName = file.name;
         this.mazeComponent?.loadMazeFromFile(file.name, file);
+
+        // allows upload same file twice
+        this.fileUpload.nativeElement.value = '';
       } else {
         this.openSnackBar('Wrong file type');
       }
     }
+  }
+
+  public downloadMazeFile(): void {
+    this.mazeComponent?.createMazeJsonFile();
   }
 
   private openSnackBar(message: string): void {

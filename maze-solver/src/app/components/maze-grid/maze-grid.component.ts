@@ -1,18 +1,12 @@
 import {HttpClient} from '@angular/common/http';
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import {AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit,} from '@angular/core';
 import {Subject} from 'rxjs';
 import {finalize, takeUntil} from 'rxjs/operators';
 import {Cell} from 'src/app/models/cell';
 import {Maze} from 'src/app/models/maze';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PrimsGenerator} from '../../models/algorithms/primsGenerator';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-maze-grid',
@@ -20,15 +14,14 @@ import {PrimsGenerator} from '../../models/algorithms/primsGenerator';
   styleUrls: ['./maze-grid.component.scss'],
 })
 export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
-  private destroy$ = new Subject();
-  // private algoWorker: Worker | undefined;
-
   @Input() fileName = '';
   @Input() settings: any;
-  private mazeFile: any;
-
   public width: number | undefined;
   public height: number | undefined;
+  public working = false;
+  public progressBarMode: any = 'determinate';
+  private destroy$ = new Subject();
+  private mazeFile: any;
   private maze: Maze | undefined;
   private canvas: HTMLCanvasElement | undefined;
   private ctx: CanvasRenderingContext2D | any;
@@ -43,19 +36,11 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   private solvedPath: Cell[] = [];
   private lastUsedSolvingMethod = '';
 
-  public working = false;
-  public progressBarMode: any = 'determinate';
-
   constructor(private httpClient: HttpClient, private snackBar: MatSnackBar) {
   }
 
   ngOnInit(): void {
     this.setSettings();
-    // if (typeof Worker !== 'undefined') {
-    //   this.algoWorker = new Worker('../../workers/algo-worker.worker', {type: `module`});
-    // } else {
-    //   throw new Error('Web Worker is not enabled');
-    // }
   }
 
   ngAfterViewInit(): void {
@@ -64,11 +49,6 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
   }
 
   ngOnChanges(): void {
-    // if (this.fileName !== '') {
-    //   this.loadMazeFromFile(this.fileName);
-    //   this.solvedPath = [];
-    //   this.lastUsedSolvingMethod = '';
-    // }
   }
 
   // draws maze from JSON file
@@ -154,22 +134,38 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       this.drawSolution(this.solvedPath);
       this.lastUsedSolvingMethod = method;
 
-      // maximum call stack problem in web worker
-      // if (this.algoWorker) {
-      //   this.algoWorker.postMessage({method, maze: this.maze});
-      //   this.algoWorker.onmessage = ({data}) => {
-      //     if (this.maze) {
-      //       this.maze.solutionPath = data;
-      //       this.solvedPath = this.maze.solutionPath;
-      //       this.drawSolution(this.solvedPath);
-      //       this.lastUsedSolvingMethod = method;
-      //     }
-      //   };
-      // }
     } else {
       this.openSnackBar('Select maze to solve');
     }
     this.changeProgressBarStatus();
+  }
+
+  public createMazeJsonFile(): void {
+    if (this.maze) {
+      const boardArray: number[][] = [];
+      for (let i = 0; i < this.maze.width; i++) {
+        boardArray[i] = [];
+        for (let j = 0; j < this.maze.height; j++) {
+          boardArray[i][j] = this.maze.cells[i][j].value;
+        }
+      }
+
+      const mazeFile = {
+        width: this.maze.width,
+        height: this.maze.height,
+        board: boardArray
+      };
+
+      const file = new File([JSON.stringify(mazeFile)], 'maze.json', {type: 'application/JSON'});
+      FileSaver.saveAs(file);
+    } else {
+      this.openSnackBar('Problem with getting maze object.');
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private draw(cell: Cell): void {
@@ -286,11 +282,5 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       this.ctx.lineWidth = this.cellEdgeThickness;
       this.maze.cells.forEach((x) => x.forEach((c) => this.draw(c)));
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    // this.algoWorker?.terminate();
   }
 }
