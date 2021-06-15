@@ -6,7 +6,7 @@ import {Cell} from 'src/app/models/cell';
 import {Maze} from 'src/app/models/maze';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PrimsGenerator} from '../../models/algorithms/primsGenerator';
-import * as FileSaver from 'file-saver';
+import {saveAs} from 'file-saver-es';
 
 @Component({
   selector: 'app-maze-grid',
@@ -157,7 +157,7 @@ export class MazeGridComponent implements OnInit, AfterViewInit, OnChanges, OnDe
       };
 
       const file = new File([JSON.stringify(mazeFile)], 'maze.json', {type: 'application/JSON'});
-      FileSaver.saveAs(file);
+      saveAs(file);
     } else {
       this.openSnackBar('Problem with getting maze object.');
     }

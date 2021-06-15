@@ -3,7 +3,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    "paths": {
+      "file-saver-es": [
+        "@types/file-saver"
+      ]
+    },
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types/"
+    ]
   },
   "files": [
     "src/main.ts",
